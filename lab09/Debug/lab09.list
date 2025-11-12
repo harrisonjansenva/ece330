@@ -496,182 +496,182 @@ int main(void)
  8000598:	f000 fa5a 	bl	8000a50 <Seven_Segment_Digit>
 
 		  		  	/**** DISPLAY VOLTS 1/10TH'S DIGIT ON DISPLAY 6 ****/
-		  		  	volts_tenths = (30*analog_value/4095)%10;
+		  		  	volts_tenths = (31*analog_value/4095)%10;
  800059c:	69fa      	ldr	r2, [r7, #28]
  800059e:	4613      	mov	r3, r2
- 80005a0:	011b      	lsls	r3, r3, #4
+ 80005a0:	015b      	lsls	r3, r3, #5
  80005a2:	1a9b      	subs	r3, r3, r2
- 80005a4:	005b      	lsls	r3, r3, #1
- 80005a6:	4a54      	ldr	r2, [pc, #336]	@ (80006f8 <main+0x204>)
- 80005a8:	fb82 1203 	smull	r1, r2, r2, r3
- 80005ac:	441a      	add	r2, r3
- 80005ae:	12d2      	asrs	r2, r2, #11
- 80005b0:	17db      	asrs	r3, r3, #31
- 80005b2:	1ad2      	subs	r2, r2, r3
- 80005b4:	4b51      	ldr	r3, [pc, #324]	@ (80006fc <main+0x208>)
- 80005b6:	fb83 1302 	smull	r1, r3, r3, r2
- 80005ba:	1099      	asrs	r1, r3, #2
- 80005bc:	17d3      	asrs	r3, r2, #31
- 80005be:	1ac9      	subs	r1, r1, r3
- 80005c0:	460b      	mov	r3, r1
- 80005c2:	009b      	lsls	r3, r3, #2
- 80005c4:	440b      	add	r3, r1
- 80005c6:	005b      	lsls	r3, r3, #1
- 80005c8:	1ad3      	subs	r3, r2, r3
- 80005ca:	617b      	str	r3, [r7, #20]
+ 80005a4:	4a54      	ldr	r2, [pc, #336]	@ (80006f8 <main+0x204>)
+ 80005a6:	fb82 1203 	smull	r1, r2, r2, r3
+ 80005aa:	441a      	add	r2, r3
+ 80005ac:	12d2      	asrs	r2, r2, #11
+ 80005ae:	17db      	asrs	r3, r3, #31
+ 80005b0:	1ad2      	subs	r2, r2, r3
+ 80005b2:	4b52      	ldr	r3, [pc, #328]	@ (80006fc <main+0x208>)
+ 80005b4:	fb83 1302 	smull	r1, r3, r3, r2
+ 80005b8:	1099      	asrs	r1, r3, #2
+ 80005ba:	17d3      	asrs	r3, r2, #31
+ 80005bc:	1ac9      	subs	r1, r1, r3
+ 80005be:	460b      	mov	r3, r1
+ 80005c0:	009b      	lsls	r3, r3, #2
+ 80005c2:	440b      	add	r3, r1
+ 80005c4:	005b      	lsls	r3, r3, #1
+ 80005c6:	1ad3      	subs	r3, r2, r3
+ 80005c8:	617b      	str	r3, [r7, #20]
 		  		  	Seven_Segment_Digit(6,volts_tenths,0);
- 80005cc:	2200      	movs	r2, #0
- 80005ce:	6979      	ldr	r1, [r7, #20]
- 80005d0:	2006      	movs	r0, #6
- 80005d2:	f000 fa3d 	bl	8000a50 <Seven_Segment_Digit>
+ 80005ca:	2200      	movs	r2, #0
+ 80005cc:	6979      	ldr	r1, [r7, #20]
+ 80005ce:	2006      	movs	r0, #6
+ 80005d0:	f000 fa3e 	bl	8000a50 <Seven_Segment_Digit>
 
 		  		  	/**** DISPLAY VOLTS 1/100TH'S DIGIT ON DISPLAY 5 ****/
 		  		  	/**** TODO: CALCULATE 1/100TH'S PLACE ****/
 		  		  	/**** TODO: OUTPUT TO DIGIT 5 ****/
 		  		  	volts_hundredths = ((300 * analog_value)/4095) % 10;
- 80005d6:	69fb      	ldr	r3, [r7, #28]
- 80005d8:	f44f 7296 	mov.w	r2, #300	@ 0x12c
- 80005dc:	fb02 f303 	mul.w	r3, r2, r3
- 80005e0:	4a45      	ldr	r2, [pc, #276]	@ (80006f8 <main+0x204>)
- 80005e2:	fb82 1203 	smull	r1, r2, r2, r3
- 80005e6:	441a      	add	r2, r3
- 80005e8:	12d2      	asrs	r2, r2, #11
- 80005ea:	17db      	asrs	r3, r3, #31
- 80005ec:	1ad2      	subs	r2, r2, r3
- 80005ee:	4b43      	ldr	r3, [pc, #268]	@ (80006fc <main+0x208>)
- 80005f0:	fb83 1302 	smull	r1, r3, r3, r2
- 80005f4:	1099      	asrs	r1, r3, #2
- 80005f6:	17d3      	asrs	r3, r2, #31
- 80005f8:	1ac9      	subs	r1, r1, r3
- 80005fa:	460b      	mov	r3, r1
- 80005fc:	009b      	lsls	r3, r3, #2
- 80005fe:	440b      	add	r3, r1
- 8000600:	005b      	lsls	r3, r3, #1
- 8000602:	1ad3      	subs	r3, r2, r3
- 8000604:	613b      	str	r3, [r7, #16]
+ 80005d4:	69fb      	ldr	r3, [r7, #28]
+ 80005d6:	f44f 7296 	mov.w	r2, #300	@ 0x12c
+ 80005da:	fb02 f303 	mul.w	r3, r2, r3
+ 80005de:	4a46      	ldr	r2, [pc, #280]	@ (80006f8 <main+0x204>)
+ 80005e0:	fb82 1203 	smull	r1, r2, r2, r3
+ 80005e4:	441a      	add	r2, r3
+ 80005e6:	12d2      	asrs	r2, r2, #11
+ 80005e8:	17db      	asrs	r3, r3, #31
+ 80005ea:	1ad2      	subs	r2, r2, r3
+ 80005ec:	4b43      	ldr	r3, [pc, #268]	@ (80006fc <main+0x208>)
+ 80005ee:	fb83 1302 	smull	r1, r3, r3, r2
+ 80005f2:	1099      	asrs	r1, r3, #2
+ 80005f4:	17d3      	asrs	r3, r2, #31
+ 80005f6:	1ac9      	subs	r1, r1, r3
+ 80005f8:	460b      	mov	r3, r1
+ 80005fa:	009b      	lsls	r3, r3, #2
+ 80005fc:	440b      	add	r3, r1
+ 80005fe:	005b      	lsls	r3, r3, #1
+ 8000600:	1ad3      	subs	r3, r2, r3
+ 8000602:	613b      	str	r3, [r7, #16]
 		  		  	Seven_Segment_Digit(5, volts_hundredths,0);
- 8000606:	2200      	movs	r2, #0
- 8000608:	6939      	ldr	r1, [r7, #16]
- 800060a:	2005      	movs	r0, #5
- 800060c:	f000 fa20 	bl	8000a50 <Seven_Segment_Digit>
+ 8000604:	2200      	movs	r2, #0
+ 8000606:	6939      	ldr	r1, [r7, #16]
+ 8000608:	2005      	movs	r0, #5
+ 800060a:	f000 fa21 	bl	8000a50 <Seven_Segment_Digit>
 
 		  		  	/**** SET DISPLAY 4 TO ZERO ****/
 		  		  	Seven_Segment_Digit(4,0,0);
- 8000610:	2200      	movs	r2, #0
- 8000612:	2100      	movs	r1, #0
- 8000614:	2004      	movs	r0, #4
- 8000616:	f000 fa1b 	bl	8000a50 <Seven_Segment_Digit>
+ 800060e:	2200      	movs	r2, #0
+ 8000610:	2100      	movs	r1, #0
+ 8000612:	2004      	movs	r0, #4
+ 8000614:	f000 fa1c 	bl	8000a50 <Seven_Segment_Digit>
 
 		  		  	/**** DISPLAY 1000THS PLACE OF RAW DECIMAL ON DISPLAY 3 ****/
 		  		  	/**** TODO: CALCULATE 1000TH'S PLACE ****/
 		  		  	/**** TODO: OUTPUT TO DIGIT 3 ****/
 		  		  	raw_1000 = (analog_value / 1000) % 10;
- 800061a:	69fb      	ldr	r3, [r7, #28]
- 800061c:	4a38      	ldr	r2, [pc, #224]	@ (8000700 <main+0x20c>)
- 800061e:	fb82 1203 	smull	r1, r2, r2, r3
- 8000622:	1192      	asrs	r2, r2, #6
- 8000624:	17db      	asrs	r3, r3, #31
- 8000626:	1ad2      	subs	r2, r2, r3
- 8000628:	4b34      	ldr	r3, [pc, #208]	@ (80006fc <main+0x208>)
- 800062a:	fb83 1302 	smull	r1, r3, r3, r2
- 800062e:	1099      	asrs	r1, r3, #2
- 8000630:	17d3      	asrs	r3, r2, #31
- 8000632:	1ac9      	subs	r1, r1, r3
- 8000634:	460b      	mov	r3, r1
- 8000636:	009b      	lsls	r3, r3, #2
- 8000638:	440b      	add	r3, r1
- 800063a:	005b      	lsls	r3, r3, #1
- 800063c:	1ad3      	subs	r3, r2, r3
- 800063e:	60fb      	str	r3, [r7, #12]
+ 8000618:	69fb      	ldr	r3, [r7, #28]
+ 800061a:	4a39      	ldr	r2, [pc, #228]	@ (8000700 <main+0x20c>)
+ 800061c:	fb82 1203 	smull	r1, r2, r2, r3
+ 8000620:	1192      	asrs	r2, r2, #6
+ 8000622:	17db      	asrs	r3, r3, #31
+ 8000624:	1ad2      	subs	r2, r2, r3
+ 8000626:	4b35      	ldr	r3, [pc, #212]	@ (80006fc <main+0x208>)
+ 8000628:	fb83 1302 	smull	r1, r3, r3, r2
+ 800062c:	1099      	asrs	r1, r3, #2
+ 800062e:	17d3      	asrs	r3, r2, #31
+ 8000630:	1ac9      	subs	r1, r1, r3
+ 8000632:	460b      	mov	r3, r1
+ 8000634:	009b      	lsls	r3, r3, #2
+ 8000636:	440b      	add	r3, r1
+ 8000638:	005b      	lsls	r3, r3, #1
+ 800063a:	1ad3      	subs	r3, r2, r3
+ 800063c:	60fb      	str	r3, [r7, #12]
 		  		  	Seven_Segment_Digit(3, raw_1000, 0);
- 8000640:	2200      	movs	r2, #0
- 8000642:	68f9      	ldr	r1, [r7, #12]
- 8000644:	2003      	movs	r0, #3
- 8000646:	f000 fa03 	bl	8000a50 <Seven_Segment_Digit>
+ 800063e:	2200      	movs	r2, #0
+ 8000640:	68f9      	ldr	r1, [r7, #12]
+ 8000642:	2003      	movs	r0, #3
+ 8000644:	f000 fa04 	bl	8000a50 <Seven_Segment_Digit>
 
 		  		  	/**** DISPLAY 100THS PLACE OF RAW DECIMAL ON DISPLAY 2 ****/
 		  		  	raw_100 = (analog_value/100)%10;
- 800064a:	69fb      	ldr	r3, [r7, #28]
- 800064c:	4a2d      	ldr	r2, [pc, #180]	@ (8000704 <main+0x210>)
- 800064e:	fb82 1203 	smull	r1, r2, r2, r3
- 8000652:	1152      	asrs	r2, r2, #5
- 8000654:	17db      	asrs	r3, r3, #31
- 8000656:	1ad2      	subs	r2, r2, r3
- 8000658:	4b28      	ldr	r3, [pc, #160]	@ (80006fc <main+0x208>)
- 800065a:	fb83 1302 	smull	r1, r3, r3, r2
- 800065e:	1099      	asrs	r1, r3, #2
- 8000660:	17d3      	asrs	r3, r2, #31
- 8000662:	1ac9      	subs	r1, r1, r3
- 8000664:	460b      	mov	r3, r1
- 8000666:	009b      	lsls	r3, r3, #2
- 8000668:	440b      	add	r3, r1
- 800066a:	005b      	lsls	r3, r3, #1
- 800066c:	1ad3      	subs	r3, r2, r3
- 800066e:	60bb      	str	r3, [r7, #8]
+ 8000648:	69fb      	ldr	r3, [r7, #28]
+ 800064a:	4a2e      	ldr	r2, [pc, #184]	@ (8000704 <main+0x210>)
+ 800064c:	fb82 1203 	smull	r1, r2, r2, r3
+ 8000650:	1152      	asrs	r2, r2, #5
+ 8000652:	17db      	asrs	r3, r3, #31
+ 8000654:	1ad2      	subs	r2, r2, r3
+ 8000656:	4b29      	ldr	r3, [pc, #164]	@ (80006fc <main+0x208>)
+ 8000658:	fb83 1302 	smull	r1, r3, r3, r2
+ 800065c:	1099      	asrs	r1, r3, #2
+ 800065e:	17d3      	asrs	r3, r2, #31
+ 8000660:	1ac9      	subs	r1, r1, r3
+ 8000662:	460b      	mov	r3, r1
+ 8000664:	009b      	lsls	r3, r3, #2
+ 8000666:	440b      	add	r3, r1
+ 8000668:	005b      	lsls	r3, r3, #1
+ 800066a:	1ad3      	subs	r3, r2, r3
+ 800066c:	60bb      	str	r3, [r7, #8]
 		  		  	Seven_Segment_Digit(2,raw_100,0);
- 8000670:	2200      	movs	r2, #0
- 8000672:	68b9      	ldr	r1, [r7, #8]
- 8000674:	2002      	movs	r0, #2
- 8000676:	f000 f9eb 	bl	8000a50 <Seven_Segment_Digit>
+ 800066e:	2200      	movs	r2, #0
+ 8000670:	68b9      	ldr	r1, [r7, #8]
+ 8000672:	2002      	movs	r0, #2
+ 8000674:	f000 f9ec 	bl	8000a50 <Seven_Segment_Digit>
 
 		  		  	/**** DISPLAY 10THS PLACE OF RAW DECIMAL ON DISPLAY 1 ****/
 		  		  	/**** TODO: CALCULATE 10TH'S PLACE ****/
 		  		  	/**** TODO: OUTPUT TO DIGIT 1 ****/
 		  		  	raw_10 = (analog_value / 10) % 10;
- 800067a:	69fb      	ldr	r3, [r7, #28]
- 800067c:	4a1f      	ldr	r2, [pc, #124]	@ (80006fc <main+0x208>)
- 800067e:	fb82 1203 	smull	r1, r2, r2, r3
- 8000682:	1092      	asrs	r2, r2, #2
- 8000684:	17db      	asrs	r3, r3, #31
- 8000686:	1ad2      	subs	r2, r2, r3
- 8000688:	4b1c      	ldr	r3, [pc, #112]	@ (80006fc <main+0x208>)
- 800068a:	fb83 1302 	smull	r1, r3, r3, r2
- 800068e:	1099      	asrs	r1, r3, #2
- 8000690:	17d3      	asrs	r3, r2, #31
- 8000692:	1ac9      	subs	r1, r1, r3
- 8000694:	460b      	mov	r3, r1
- 8000696:	009b      	lsls	r3, r3, #2
- 8000698:	440b      	add	r3, r1
- 800069a:	005b      	lsls	r3, r3, #1
- 800069c:	1ad3      	subs	r3, r2, r3
- 800069e:	607b      	str	r3, [r7, #4]
+ 8000678:	69fb      	ldr	r3, [r7, #28]
+ 800067a:	4a20      	ldr	r2, [pc, #128]	@ (80006fc <main+0x208>)
+ 800067c:	fb82 1203 	smull	r1, r2, r2, r3
+ 8000680:	1092      	asrs	r2, r2, #2
+ 8000682:	17db      	asrs	r3, r3, #31
+ 8000684:	1ad2      	subs	r2, r2, r3
+ 8000686:	4b1d      	ldr	r3, [pc, #116]	@ (80006fc <main+0x208>)
+ 8000688:	fb83 1302 	smull	r1, r3, r3, r2
+ 800068c:	1099      	asrs	r1, r3, #2
+ 800068e:	17d3      	asrs	r3, r2, #31
+ 8000690:	1ac9      	subs	r1, r1, r3
+ 8000692:	460b      	mov	r3, r1
+ 8000694:	009b      	lsls	r3, r3, #2
+ 8000696:	440b      	add	r3, r1
+ 8000698:	005b      	lsls	r3, r3, #1
+ 800069a:	1ad3      	subs	r3, r2, r3
+ 800069c:	607b      	str	r3, [r7, #4]
 		  		  	Seven_Segment_Digit(1, raw_10, 0);
- 80006a0:	2200      	movs	r2, #0
- 80006a2:	6879      	ldr	r1, [r7, #4]
- 80006a4:	2001      	movs	r0, #1
- 80006a6:	f000 f9d3 	bl	8000a50 <Seven_Segment_Digit>
+ 800069e:	2200      	movs	r2, #0
+ 80006a0:	6879      	ldr	r1, [r7, #4]
+ 80006a2:	2001      	movs	r0, #1
+ 80006a4:	f000 f9d4 	bl	8000a50 <Seven_Segment_Digit>
 
 		  		  	/**** DISPLAY 1'S PLACE OF RAW DECIMAL ON DISPLAY 0 ****/
 		  		  	/**** TODO: CALCULATE 1'S PLACE ****/
 		  		  	/**** TODO: OUTPUT TO DIGIT 0 ****/
 		  		  	raw_1 = (analog_value) % 10;
- 80006aa:	69fa      	ldr	r2, [r7, #28]
- 80006ac:	4b13      	ldr	r3, [pc, #76]	@ (80006fc <main+0x208>)
- 80006ae:	fb83 1302 	smull	r1, r3, r3, r2
- 80006b2:	1099      	asrs	r1, r3, #2
- 80006b4:	17d3      	asrs	r3, r2, #31
- 80006b6:	1ac9      	subs	r1, r1, r3
- 80006b8:	460b      	mov	r3, r1
- 80006ba:	009b      	lsls	r3, r3, #2
- 80006bc:	440b      	add	r3, r1
- 80006be:	005b      	lsls	r3, r3, #1
- 80006c0:	1ad3      	subs	r3, r2, r3
- 80006c2:	603b      	str	r3, [r7, #0]
+ 80006a8:	69fa      	ldr	r2, [r7, #28]
+ 80006aa:	4b14      	ldr	r3, [pc, #80]	@ (80006fc <main+0x208>)
+ 80006ac:	fb83 1302 	smull	r1, r3, r3, r2
+ 80006b0:	1099      	asrs	r1, r3, #2
+ 80006b2:	17d3      	asrs	r3, r2, #31
+ 80006b4:	1ac9      	subs	r1, r1, r3
+ 80006b6:	460b      	mov	r3, r1
+ 80006b8:	009b      	lsls	r3, r3, #2
+ 80006ba:	440b      	add	r3, r1
+ 80006bc:	005b      	lsls	r3, r3, #1
+ 80006be:	1ad3      	subs	r3, r2, r3
+ 80006c0:	603b      	str	r3, [r7, #0]
 		  		  	Seven_Segment_Digit(0, raw_1, 0);
- 80006c4:	2200      	movs	r2, #0
- 80006c6:	6839      	ldr	r1, [r7, #0]
- 80006c8:	2000      	movs	r0, #0
- 80006ca:	f000 f9c1 	bl	8000a50 <Seven_Segment_Digit>
+ 80006c2:	2200      	movs	r2, #0
+ 80006c4:	6839      	ldr	r1, [r7, #0]
+ 80006c6:	2000      	movs	r0, #0
+ 80006c8:	f000 f9c2 	bl	8000a50 <Seven_Segment_Digit>
 		  		  	/**** DISPLAY BINARY VALUE OF SAMPLE ON LEDS ****/
 		  		  	GPIOD->ODR = analog_value;
- 80006ce:	4a03      	ldr	r2, [pc, #12]	@ (80006dc <main+0x1e8>)
- 80006d0:	69fb      	ldr	r3, [r7, #28]
- 80006d2:	6153      	str	r3, [r2, #20]
+ 80006cc:	4a03      	ldr	r2, [pc, #12]	@ (80006dc <main+0x1e8>)
+ 80006ce:	69fb      	ldr	r3, [r7, #28]
+ 80006d0:	6153      	str	r3, [r2, #20]
 		  		  	HAL_Delay(100);
- 80006d4:	2064      	movs	r0, #100	@ 0x64
- 80006d6:	f000 fb4d 	bl	8000d74 <HAL_Delay>
+ 80006d2:	2064      	movs	r0, #100	@ 0x64
+ 80006d4:	f000 fb4e 	bl	8000d74 <HAL_Delay>
 		  ADC1->SQR3 = 1; // select ADC channel 0, change to ADC channel 1 for potentiometer
- 80006da:	e739      	b.n	8000550 <main+0x5c>
+ 80006d8:	e73a      	b.n	8000550 <main+0x5c>
+ 80006da:	bf00      	nop
  80006dc:	40020c00 	.word	0x40020c00
  80006e0:	40020000 	.word	0x40020000
  80006e4:	40021000 	.word	0x40021000

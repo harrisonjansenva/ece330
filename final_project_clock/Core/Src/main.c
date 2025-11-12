@@ -151,9 +151,14 @@ int main(void)
   /*** Configure ADC1 ***/
   PWR->CR |= 1 << 8; // turn on RTC
   RCC->BDCR |= 0x8200; //
-  RCC->APB2ENR |= 1<<8;  // Turn on ADC1 clock by forcing bit 8 to 1 while keeping other bits unchanged
+  RCC->APB2ENR |= 0x00000700;  // Turn on ADC1 clock by forcing bit 8 to 1 while keeping other bits unchanged
+
 //  ADC1->SMPR2 |= 1; // 15 clock cycles per sample
-  ADC1->CR2 |= 0x00000003;        // Turn on ADC1 by forcing bit 0 to 1 while keeping other bits unchanged
+  ADC1->CR2 |= 0x00000003; // Turn on ADC1 by forcing bit 0 to 1 while keeping other bits unchanged
+  ADC2->CR2 |= 0x00000003;
+  ADC3->CR2 |= 0x00000003;
+
+
 
 
   /*****************************************************************************************************
@@ -663,18 +668,62 @@ int main(void)
   Delay_msec = 200;
   Animate_On = 0;
 
-
+int analog_days, analog_months, analog_years, month_tens, month_ones, day_tens, day_ones, year_tens, year_ones;
+for (int i = 0; i < 8; i++) {
+	Seven_Segment_Digit(i, 45, 0);
+	HAL_Delay(1);
+}
   while (1)
   {
+//	  // --- Read switches and buttons ---
+//	  uint32_t switches = GPIOC->IDR;          // get all input from switches
+//	  uint8_t readIn  = (switches >> 12) & 0xF;   // read switches 12-15
+//	  int write = !(switches & (1 << 11));  //since these are usually triggered by zero, we flip it
+//	  int nextBtn  = !(inC & (1 << 10)); 	//same here
+
 	  ADC1->SQR3 = 1; // select ADC channel 0, change to ADC channel 1 for potentiometer
+	  ADC2->SQR3 = 2;
+	  ADC3->SQR3 = 3;
 	  HAL_Delay(1);
 	  /**** TODO: START ADC1 CONVERSION ****/    // Start a conversion on ADC1 by forcing bit 30 in CR2 to 1 while keeping other bits unchanged
 	  ADC1->CR2 |= (1 << 30);
+	  ADC2-> CR2 |= (1<<30);
+	  ADC3->CR2 |= (1<<30);
+
+
+	  HAL_Delay(1);
 
 	  if (ADC1->SR & 1<<1) {
-		 int  analog_value = ADC1->DR;
-		 int num = (3 * analog_value) / 4095;
-		  Seven_Segment(7, 3 0);
+		 analog_days = ADC2->DR;
+		 day_tens = (3 * analog_days) / 4095;
+		  Seven_Segment_Digit(4, day_tens, 0);
+
+		 day_ones = (30* analog_days / 4095) % 10;
+		 Seven_Segment_Digit(3, day_ones, 0);
+	  }
+
+
+	  if(ADC2->SR & 1<<1) {
+
+		  analog_months = ADC1->DR;
+		 month_tens = (analog_months / 4095);
+		 Seven_Segment_Digit(7, month_tens, 0);
+
+		 month_ones = (12 * analog_months / 4095) % 10;
+		 Seven_Segment_Digit(6, month_ones, 0);
+	  }
+
+
+	  if(ADC3->SR & 1 << 1) {
+		  analog_years = ADC3->DR;
+		 year_tens = (9 * analog_years) / 4095;
+		 Seven_Segment_Digit(1, year_tens, 0);
+
+		 year_ones = (99 * analog_years / 4095) % 10;
+		 Seven_Segment_Digit(0, year_ones, 0);
+
+
+
 	  }
 
   }

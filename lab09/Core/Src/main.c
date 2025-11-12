@@ -147,7 +147,7 @@ int main(void)
 		  		  	Seven_Segment_Digit(7,volts,0);
 
 		  		  	/**** DISPLAY VOLTS 1/10TH'S DIGIT ON DISPLAY 6 ****/
-		  		  	volts_tenths = (30*analog_value/4095)%10;
+		  		  	volts_tenths = (31*analog_value/4095)%10;
 		  		  	Seven_Segment_Digit(6,volts_tenths,0);
 
 		  		  	/**** DISPLAY VOLTS 1/100TH'S DIGIT ON DISPLAY 5 ****/
