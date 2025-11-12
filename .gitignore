@@ -1,0 +1,7 @@
+/Debug/
+/Drivers/
+/Middlewares/
+/USB_HOST/
+/.metadata/
+/.DS_Store/
+*.o
