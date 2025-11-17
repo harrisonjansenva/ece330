@@ -101,6 +101,75 @@ char Message[] =
 
 /* Declare array for Song */
 Music Song[100];
+
+void clearDisplay() {
+  for (int i = 0; i < 8; i++) {
+	Seven_Segment_Digit(i, 45, 0);
+	HAL_Delay(1);
+  }
+}
+
+void setDayMonthYear() {
+	int analog_days, day_tens, day_ones, analog_months, month_tens, month_ones, analog_years, year_tens, year_ones, analog_value, hour_ones, hour_tens, minute_ones, minute_tens;
+	int inC = GPIOC->IDR;
+	int nextBtn  = (inC & (1 << 10));
+
+	if (ADC2->SR & 1 << 1) {
+		analog_months = ADC1->DR;
+		month_tens = (analog_months / 3413);
+		Seven_Segment_Digit(7, month_tens, 0);
+
+		month_ones = (12 * analog_months / 4095) % 10;
+		Seven_Segment_Digit(6, month_ones, 0);
+	}
+
+	if (ADC1->SR & 1 << 1) {
+		analog_days = ADC2->DR;
+		day_tens = (3 * analog_days) / 4095;
+		Seven_Segment_Digit(4, day_tens, 0);
+		day_ones = (31 * analog_days / 4095) % 10;
+		Seven_Segment_Digit(3, day_ones, 0);
+	}
+
+	if (ADC3->SR & 1 << 1) {
+		analog_years = ADC3->DR;
+		year_tens = (9 * analog_years) / 4095;
+		Seven_Segment_Digit(1, year_tens, 0);
+		year_ones = (99 * analog_years / 4095) % 10;
+		Seven_Segment_Digit(0, year_ones, 0);
+	}
+
+	while (nextBtn) {
+
+		for (int i = 0; i < 8; i++) {
+			Seven_Segment_Digit(i, 45, 0);
+			HAL_Delay(1);
+		}
+
+	if (ADC1->SR & 1<<1) {
+			analog_value = ADC1->DR;
+			hour_tens = (2 * analog_value / 4095);
+			Seven_Segment_Digit(7, hour_tens, 0);
+			hour_ones = (23 * analog_value /4095) % 10;
+			Seven_Segment_Digit(6, hour_ones, 0);
+		}
+
+	if (ADC2->SR & 1<<1) {
+		analog_value = ADC2->DR;
+		minute_tens = (5 * analog_value / 4095);
+		Seven_Segment_Digit(4, minute_tens, 0);
+
+		minute_ones = (59 * analog_value / 4095) % 10;
+		Seven_Segment_Digit(3, minute_ones, 0);
+
+	}
+}
+}
+
+void displayRTC() {
+	Seven_Segment(RTC->TR);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -668,11 +737,8 @@ int main(void)
   Delay_msec = 200;
   Animate_On = 0;
 
-int analog_days, analog_months, analog_years, month_tens, month_ones, day_tens, day_ones, year_tens, year_ones;
-for (int i = 0; i < 8; i++) {
-	Seven_Segment_Digit(i, 45, 0);
-	HAL_Delay(1);
-}
+//int analog_days, analog_months, analog_years, month_tens, month_ones, day_tens, day_ones, year_tens, year_ones;
+
   while (1)
   {
 //	  // --- Read switches and buttons ---
@@ -681,11 +747,11 @@ for (int i = 0; i < 8; i++) {
 //	  int write = !(switches & (1 << 11));  //since these are usually triggered by zero, we flip it
 //	  int nextBtn  = !(inC & (1 << 10)); 	//same here
 
-	  ADC1->SQR3 = 1; // select ADC channel 0, change to ADC channel 1 for potentiometer
+	  ADC1->SQR3 = 1; // select ADC channel 1 for potentiometer
 	  ADC2->SQR3 = 2;
 	  ADC3->SQR3 = 3;
 	  HAL_Delay(1);
-	  /**** TODO: START ADC1 CONVERSION ****/    // Start a conversion on ADC1 by forcing bit 30 in CR2 to 1 while keeping other bits unchanged
+// Start a conversion on ADC1, 2, and 3 by forcing bit 30 in CR2 to 1 while keeping other bits unchanged
 	  ADC1->CR2 |= (1 << 30);
 	  ADC2-> CR2 |= (1<<30);
 	  ADC3->CR2 |= (1<<30);
@@ -693,38 +759,24 @@ for (int i = 0; i < 8; i++) {
 
 	  HAL_Delay(1);
 
-	  if (ADC1->SR & 1<<1) {
-		 analog_days = ADC2->DR;
-		 day_tens = (3 * analog_days) / 4095;
-		  Seven_Segment_Digit(4, day_tens, 0);
+	  if (GPIOC -> IDR & 1<<1) {
+		  clearDisplay();
+	  }
 
-		 day_ones = (30* analog_days / 4095) % 10;
-		 Seven_Segment_Digit(3, day_ones, 0);
+	  while (GPIOC->IDR & 1<<1) {
+		  setDayMonthYear();
 	  }
 
 
-	  if(ADC2->SR & 1<<1) {
+	for (int i = 0; i < 500000; i++) {
+	  displayRTC();
+	}
 
-		  analog_months = ADC1->DR;
-		 month_tens = (analog_months / 4095);
-		 Seven_Segment_Digit(7, month_tens, 0);
-
-		 month_ones = (12 * analog_months / 4095) % 10;
-		 Seven_Segment_Digit(6, month_ones, 0);
-	  }
+	for (int i = 0; i < 500000; i++) {
+		Seven_Segment(RTC->DR);
+	}
 
 
-	  if(ADC3->SR & 1 << 1) {
-		  analog_years = ADC3->DR;
-		 year_tens = (9 * analog_years) / 4095;
-		 Seven_Segment_Digit(1, year_tens, 0);
-
-		 year_ones = (99 * analog_years / 4095) % 10;
-		 Seven_Segment_Digit(0, year_ones, 0);
-
-
-
-	  }
 
   }
   /* USER CODE END 3 */

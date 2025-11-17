@@ -120,7 +120,7 @@ while (1)
 			  while (!(GPIOC->IDR & (1 << 11)));   // wait until we let go of write button
 		  }
 
-		  if (advance) {	//check if time to advance
+		  if (nextBtn) {	//check if time to advance
 			  digit = (digit + 1) & 0x7; //  move to next digit to pick
 			  while (!(GPIOC->IDR & (1 << 10)));   //wait until it's time to switch to next display
 		  }
