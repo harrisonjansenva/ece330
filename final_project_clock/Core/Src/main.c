@@ -111,7 +111,7 @@ void clearDisplay() {
 int setDayMonthYear() {
 	int analog_days, day_tens, day_ones, analog_months, month_tens, month_ones,
 			analog_years, year_tens, year_ones;
-//	int inC = GPIOC->IDR;
+	//	int inC = GPIOC->IDR;
 
 	if (ADC2->SR & 1 << 1) {
 		analog_months = ADC1->DR;
@@ -733,7 +733,7 @@ int main(void) {
 
 	Save_Note = Song[0].note;  // Needed for vibrato effect
 	INDEX = 0;
-	Music_ON = 0;
+
 	/* USER CODE END 2 */
 
 	/* Infinite loop */
@@ -775,6 +775,24 @@ int main(void) {
 			while (GPIOC->IDR & 1 << 10) {
 				new_TR_value = setTime();
 			}
+
+			RTC->WPR |= 0xCA;
+			RTC->WPR |= 0x53;
+
+			RTC->ISR |= 1 << 7;
+
+			if (RTC->ISR & 1 << 6) {
+				RTC->PRER = 0x102; //Set lower portion to 258
+				RTC->PRER |= 0x007F0000; //Set upper portion to 127
+				RTC->TR = new_TR_value;
+				RTC->DR = new_DR_value;
+				RTC->CR &= 0 << 6;
+			}
+
+			RTC->ISR &= ~(1 << 7); // Clear INIT bit
+
+			// 6. Lock registers
+			RTC->WPR = 0xFF;
 		}
 		while (GPIOC->IDR & 1 << 15) {
 			RTC->CR &= 0 << 8;
@@ -784,33 +802,23 @@ int main(void) {
 
 			}
 
+			if (RTC->ISR &= 1 << 8) {
+				Music_ON = 1;
+			RTC-> ISR &= (0 << 8);
+			}
+
 		}
 		if (GPIOC->IDR & 1 << 14) {
 			RTC->CR |= 1 << 8;
 
 		}
 
-		RTC->WPR |= 0xCA;
-		RTC->WPR |= 0x53;
-
-		RTC->ISR |= 1 << 7;
-
-		if (RTC->ISR & 1 << 6) {
-			RTC->PRER = 0x102; //Set lower portion to 258
-			RTC->PRER |= 0x007F0000; //Set upper portion to 127
-			RTC->TR = new_TR_value;
-			RTC->DR = new_DR_value;
-			RTC->CR &= 0 << 6;
-		}
-
-		RTC->ISR &= 0 << 7;
-
 		for (int i = 0; i < 500000; i++) {
 			displayRTC();
 		}
 
 		for (int i = 0; i < 500000; i++) {
-			Seven_Segment(RTC->DR);
+			Seven_Segment(RTC->DR & ~(0x7 << 13));
 		}
 
 	}

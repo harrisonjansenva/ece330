@@ -22,7 +22,7 @@
 extern void Seven_Segment_Digit (unsigned char digit, unsigned char hex_char, unsigned char dot);
 extern void Seven_Segment(unsigned int HexValue);
 
-#define COMMON_ANODE 1
+#define COMMON_ANODE 0
 /* Character set Common Anode */
 #if COMMON_ANODE == 1
 char _7SEG[] =
