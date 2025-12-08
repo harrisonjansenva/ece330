@@ -109,113 +109,166 @@ void clearDisplay() {
 	}
 }
 
-	int setDayMonthYear() {
-	    int analog_raw, total_val;
-	    int day_tens, day_ones, month_tens, month_ones, year_tens, year_ones;
+int setDayMonthYear() {
+	int analog_raw, total_val;
+	int day_tens, day_ones, month_tens, month_ones, year_tens, year_ones;
 
-	    // --- MONTHS (1 to 12) ---
-	    if (ADC2->SR & (1 << 1)) {
-	        analog_raw = ADC1->DR;
+	// --- MONTHS (1 to 12) ---
+	if (ADC2->SR & (1 << 1)) {
+		analog_raw = ADC1->DR;
 
-	        // Map 0-4095 to 0-11, then add 1 to get 1-12
-	        total_val = (analog_raw * 12) / 4096 + 1;
+		// Map 0-4095 to 0-11, then add 1 to get 1-12
+		total_val = (analog_raw * 12) / 4096 + 1;
 
-	        month_tens = total_val / 10;
-	        month_ones = total_val % 10;
+		month_tens = total_val / 10;
+		month_ones = total_val % 10;
 
-	        Seven_Segment_Digit(7, month_tens, 0);
-	        Seven_Segment_Digit(6, month_ones, 0);
-	    }
-
-	    // --- DAYS (1 to 31) ---
-	    if (ADC1->SR & (1 << 1)) {
-	        analog_raw = ADC2->DR;
-
-	        // Map 0-4095 to 0-30, then add 1 to get 1-31
-	        total_val = (analog_raw * 31) / 4096 + 1;
-
-	        day_tens = total_val / 10;
-	        day_ones = total_val % 10;
-
-	        Seven_Segment_Digit(4, day_tens, 0);
-	        Seven_Segment_Digit(3, day_ones, 0);
-	    }
-
-	    // --- YEARS (0 to 99) ---
-	    if (ADC3->SR & (1 << 1)) {
-	        analog_raw = ADC3->DR;
-
-	        // Map 0-4095 to 0-99
-	        total_val = (analog_raw * 100) / 4096;
-
-	        // Safety clamp (just in case)
-	        if (total_val > 99) total_val = 99;
-
-	        year_tens = total_val / 10;
-	        year_ones = total_val % 10;
-
-	        Seven_Segment_Digit(1, year_tens, 0);
-	        Seven_Segment_Digit(0, year_ones, 0);
-	    }
-
-	    // Return BCD Packed value
-	    return ((year_tens & 0xF) << 20) |
-	           ((year_ones & 0xF) << 16) |
-	           (0b010 << 13)             | // Weekday hardcoded to Tuesday (optional)
-	           ((month_tens & 0x1) << 12)|
-	           ((month_ones & 0xF) << 8) |
-	           ((day_tens & 0x3) << 4)   |
-	           ((day_ones & 0xF) << 0);
+		Seven_Segment_Digit(7, month_tens, 0);
+		Seven_Segment_Digit(6, month_ones, 0);
 	}
 
-	int setTime() {
-	    int analog_raw, total_val;
-	    int hour_ones, hour_tens, minute_ones, minute_tens;
+	// --- DAYS (1 to 31) ---
+	if (ADC1->SR & (1 << 1)) {
+		analog_raw = ADC2->DR;
 
-	    // Clear display momentarily (or handled by main loop)
-	    // Note: Doing this inside the function might cause flickering
-	    // for (int i = 0; i < 8; i++) { Seven_Segment_Digit(i, 45, 0); }
+		// Map 0-4095 to 0-30, then add 1 to get 1-31
+		total_val = (analog_raw * 31) / 4096 + 1;
 
-	    // --- HOURS (0 to 23) ---
-	    if (ADC1->SR & (1 << 1)) {
-	        analog_raw = ADC1->DR;
+		day_tens = total_val / 10;
+		day_ones = total_val % 10;
 
-	        // Map 0-4095 to 0-23
-	        total_val = (analog_raw * 24) / 4096;
-	        if (total_val > 23) total_val = 23;
-
-	        hour_tens = total_val / 10;
-	        hour_ones = total_val % 10;
-
-	        Seven_Segment_Digit(7, hour_tens, 0);
-	        Seven_Segment_Digit(6, hour_ones, 0);
-	    }
-
-	    // --- MINUTES (0 to 59) ---
-	    if (ADC2->SR & (1 << 1)) {
-	        analog_raw = ADC2->DR;
-
-	        // Map 0-4095 to 0-59
-	        total_val = (analog_raw * 60) / 4096;
-	        if (total_val > 59) total_val = 59;
-
-	        minute_tens = total_val / 10;
-	        minute_ones = total_val % 10;
-
-	        Seven_Segment_Digit(4, minute_tens, 0);
-	        Seven_Segment_Digit(3, minute_ones, 0);
-	    }
-
-	    // Return BCD Packed Value for RTC_TR
-	    return ((hour_tens & 0x3) << 20)   |
-	           ((hour_ones & 0xF) << 16)   |
-	           ((minute_tens & 0x7) << 12) |
-	           ((minute_ones & 0xF) << 8)  |
-	           (0); // Seconds defaults to 0
+		Seven_Segment_Digit(4, day_tens, 0);
+		Seven_Segment_Digit(3, day_ones, 0);
 	}
+
+	// --- YEARS (0 to 99) ---
+	if (ADC3->SR & (1 << 1)) {
+		analog_raw = ADC3->DR;
+
+		// Map 0-4095 to 0-99
+		total_val = (analog_raw * 100) / 4096;
+
+		// Safety clamp (just in case)
+		if (total_val > 99)
+			total_val = 99;
+
+		year_tens = total_val / 10;
+		year_ones = total_val % 10;
+
+		Seven_Segment_Digit(1, year_tens, 0);
+		Seven_Segment_Digit(0, year_ones, 0);
+	}
+
+	// Return BCD Packed value
+	return ((year_tens & 0xF) << 20) | ((year_ones & 0xF) << 16) | (0b010 << 13)
+			| // Weekday hardcoded to Tuesday (optional)
+			((month_tens & 0x1) << 12) | ((month_ones & 0xF) << 8)
+			| ((day_tens & 0x3) << 4) | ((day_ones & 0xF) << 0);
+}
+
+int setTime() {
+	int analog_raw, total_val;
+	int hour_ones, hour_tens, minute_ones, minute_tens;
+
+	// Clear display momentarily (or handled by main loop)
+	// Note: Doing this inside the function might cause flickering
+	// for (int i = 0; i < 8; i++) { Seven_Segment_Digit(i, 45, 0); }
+
+	// --- HOURS (0 to 23) ---
+	if (ADC1->SR & (1 << 1)) {
+		analog_raw = ADC1->DR;
+
+		// Map 0-4095 to 0-23
+		total_val = (analog_raw * 24) / 4096;
+		if (total_val > 23)
+			total_val = 23;
+
+		hour_tens = total_val / 10;
+		hour_ones = total_val % 10;
+
+		Seven_Segment_Digit(7, hour_tens, 0);
+		Seven_Segment_Digit(6, hour_ones, 0);
+	}
+
+	// --- MINUTES (0 to 59) ---
+	if (ADC2->SR & (1 << 1)) {
+		analog_raw = ADC2->DR;
+
+		// Map 0-4095 to 0-59
+		total_val = (analog_raw * 60) / 4096;
+		if (total_val > 59)
+			total_val = 59;
+
+		minute_tens = total_val / 10;
+		minute_ones = total_val % 10;
+
+		Seven_Segment_Digit(4, minute_tens, 0);
+		Seven_Segment_Digit(3, minute_ones, 0);
+	}
+
+	// Return BCD Packed Value for RTC_TR
+	return ((hour_tens & 0x3) << 20) | ((hour_ones & 0xF) << 16)
+			| ((minute_tens & 0x7) << 12) | ((minute_ones & 0xF) << 8) | (0); // Seconds defaults to 0
+}
 
 void displayRTC() {
 	Seven_Segment(RTC->TR);
+}
+
+void Display_Formatted_Date() {
+	uint32_t dr = RTC->DR;
+
+	// Extract BCD digits
+	int y_tens = (dr >> 20) & 0xF;
+	int y_ones = (dr >> 16) & 0xF;
+	int m_tens = (dr >> 12) & 0x1;
+	int m_ones = (dr >> 8) & 0xF;
+	int d_tens = (dr >> 4) & 0x3;
+	int d_ones = (dr >> 0) & 0xF;
+
+	// Display formatted as MM - DD - YY
+	// Assuming '45' is the code for Blank/Space in your Seven_Segment_Digit function
+
+	Seven_Segment_Digit(7, m_tens, 0); // Month
+	Seven_Segment_Digit(6, m_ones, 0);
+
+	Seven_Segment_Digit(5, 45, 0);     // Space
+
+	Seven_Segment_Digit(4, d_tens, 0); // Day
+	Seven_Segment_Digit(3, d_ones, 0);
+
+	Seven_Segment_Digit(2, 45, 0);     // Space
+
+	Seven_Segment_Digit(1, y_tens, 0); // Year
+	Seven_Segment_Digit(0, y_ones, 0);
+}
+
+void Display_Formatted_Time() {
+	uint32_t tr = RTC->TR;
+
+	// Extract BCD digits
+	int h_tens = (tr >> 20) & 0x3;
+	int h_ones = (tr >> 16) & 0xF;
+	int m_tens = (tr >> 12) & 0x7;
+	int m_ones = (tr >> 8) & 0xF;
+	int s_tens = (tr >> 4) & 0x7;
+	int s_ones = (tr >> 0) & 0xF;
+
+	// Display formatted as HH . MM . SS (Using Dots for separation)
+	// Pass '1' as the 3rd argument to turn on the Decimal Point
+
+	Seven_Segment_Digit(7, h_tens, 0);
+	Seven_Segment_Digit(6, h_ones, 1); // Dot ON after hours
+
+	Seven_Segment_Digit(5, 45, 0);     // Space (Optional, if you have 8 digits)
+
+	Seven_Segment_Digit(4, m_tens, 0);
+	Seven_Segment_Digit(3, m_ones, 1); // Dot ON after minutes
+
+	Seven_Segment_Digit(2, 45, 0);     // Space (Optional)
+
+	Seven_Segment_Digit(1, s_tens, 0);
+	Seven_Segment_Digit(0, s_ones, 0);
 }
 
 /* USER CODE END 0 */
@@ -807,42 +860,77 @@ int main(void) {
 
 		if (GPIOC->IDR & 1) {
 			clearDisplay();
+
+			// 1. Initialize temporary variables with CURRENT time/date
+			    // This prevents garbage data if you only edit one and not the other.
+			    new_DR_value = RTC->DR;
+			    new_TR_value = RTC->TR;
+
+			    int edit_mode = 0; // 0 = Date, 1 = Time
+			    int btn_pressed = 0; // Helper for toggle logic
+
+			    // Loop while Switch 0 is ON
+			    while (GPIOC->IDR & 1) {
+
+			        // --- BUTTON TOGGLE LOGIC (Button 10) ---
+			        // Detect if button is pressed (Rising Edge) to toggle mode
+			        if (GPIOC->IDR & (1 << 10)) {
+			            if (btn_pressed == 0) {
+			                edit_mode = !edit_mode; // Toggle: 0->1 or 1->0
+			                btn_pressed = 1;        // Lock until release
+			                clearDisplay();         // Clear screen for visual feedback
+			            }
+			        } else {
+			            btn_pressed = 0; // Reset lock when button released
+			        }
+
+			        // --- EDIT MODES ---
+			        if (edit_mode == 0) {
+			            // MODE: SET DATE
+			            // Only update the Date variable. Time variable remains safe.
+			            new_DR_value = setDayMonthYear();
+			        }
+			        else {
+			            // MODE: SET TIME
+			            // Only update the Time variable. Date variable remains safe.
+			            new_TR_value = setTime();
+			        }
+
+				RTC->WPR |= 0xCA;
+				RTC->WPR |= 0x53;
+
+				RTC->ISR |= 1 << 7;
+
+				if (RTC->ISR & 1 << 6) {
+					RTC->PRER = 0x102; //Set lower portion to 258
+					RTC->PRER |= 0x007F0000; //Set upper portion to 127
+					RTC->TR = new_TR_value;
+					RTC->DR = new_DR_value;
+					RTC->CR &= ~(1 << 6);
+				}
+
+				RTC->ISR &= ~(1 << 7); // Clear INIT bit
+
+				// 6. Lock registers
+				RTC->WPR = 0xFF;
+			}
+		}
+		if (GPIOC->IDR & 1 << 15) {
+			clearDisplay();
+			while (GPIOC->IDR & 1 << 15) {
+				RTC->WPR = 0xCA;
+				RTC->WPR = 0x53;
+				RTC->CR &= ~(1 << 8);
+				if (RTC->ISR & 1) {
+					alarm_value = setTime() | (1 << 31);
+					RTC->ALRMAR = alarm_value;
+
+				}
+
+			}
 		}
 
-		while (GPIOC->IDR & 1) {
-			new_DR_value = setDayMonthYear();
-			while (GPIOC->IDR & 1 << 10) {
-				new_TR_value = setTime();
-			}
-
-			RTC->WPR |= 0xCA;
-			RTC->WPR |= 0x53;
-
-			RTC->ISR |= 1 << 7;
-
-			if (RTC->ISR & 1 << 6) {
-				RTC->PRER = 0x102; //Set lower portion to 258
-				RTC->PRER |= 0x007F0000; //Set upper portion to 127
-				RTC->TR = new_TR_value;
-				RTC->DR = new_DR_value;
-				RTC->CR &= ~(1 << 6); // Only clears Bit 6 (Format bit)
-			}
-
-			RTC->ISR &= ~(1 << 7); // Clear INIT bit
-
-			// 6. Lock registers
-			RTC->WPR = 0xFF;
-		}
-		while (GPIOC->IDR & 1 << 15) {
-			RTC->CR &= ~(1 << 8);
-			if (RTC->ISR & 1) {
-				alarm_value = setTime() | (1 << 31);
-				RTC->ALRMAR = alarm_value;
-
-			}
-
-		}
-	if (GPIOC->IDR & 1 << 14) {
+		if (GPIOC->IDR & 1 << 14) {
 			RTC->CR |= 1 << 8;
 			if (RTC->ISR & 1 << 8) {
 				Music_ON = 1;
@@ -850,13 +938,25 @@ int main(void) {
 			}
 		}
 
-		for (int i = 0; i < 500000; i++) {
-			displayRTC();
+		// Static variables keep their value between loop iterations
+		static uint32_t last_toggle_time = 0;
+		static int show_date_mode = 0;
+
+		// Check if 2000ms (2 seconds) have passed
+		if (HAL_GetTick() - last_toggle_time > 4000) {
+			show_date_mode = !show_date_mode; // Toggle mode
+			last_toggle_time = HAL_GetTick(); // Reset timer
+			clearDisplay(); // Wipe display briefly to prevent "ghosting"
 		}
 
-		for (int i = 0; i < 500000; i++) {
-			Seven_Segment(RTC->DR & ~(0x7 << 13));
+		if (show_date_mode) {
+			Display_Formatted_Date();
+		} else {
+			Display_Formatted_Time();
 		}
+
+		// Add a tiny delay (1-5ms) just to stabilize the 7-segment brightness
+		HAL_Delay(2);
 
 	}
 	/* USER CODE END 3 */
