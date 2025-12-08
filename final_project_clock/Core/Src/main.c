@@ -19,6 +19,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "seg7.h"
+#include <math.h>
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -108,75 +109,110 @@ void clearDisplay() {
 	}
 }
 
-int setDayMonthYear() {
-	int analog_days, day_tens, day_ones, analog_months, month_tens, month_ones,
-			analog_years, year_tens, year_ones;
-	//	int inC = GPIOC->IDR;
+	int setDayMonthYear() {
+	    int analog_raw, total_val;
+	    int day_tens, day_ones, month_tens, month_ones, year_tens, year_ones;
 
-	if (ADC2->SR & 1 << 1) {
-		analog_months = ADC1->DR;
-		month_tens = (analog_months / 3413);
-		Seven_Segment_Digit(7, month_tens, 0);
+	    // --- MONTHS (1 to 12) ---
+	    if (ADC2->SR & (1 << 1)) {
+	        analog_raw = ADC1->DR;
 
-		month_ones = (12 * analog_months / 4095) % 10;
-		Seven_Segment_Digit(6, month_ones, 0);
+	        // Map 0-4095 to 0-11, then add 1 to get 1-12
+	        total_val = (analog_raw * 12) / 4096 + 1;
+
+	        month_tens = total_val / 10;
+	        month_ones = total_val % 10;
+
+	        Seven_Segment_Digit(7, month_tens, 0);
+	        Seven_Segment_Digit(6, month_ones, 0);
+	    }
+
+	    // --- DAYS (1 to 31) ---
+	    if (ADC1->SR & (1 << 1)) {
+	        analog_raw = ADC2->DR;
+
+	        // Map 0-4095 to 0-30, then add 1 to get 1-31
+	        total_val = (analog_raw * 31) / 4096 + 1;
+
+	        day_tens = total_val / 10;
+	        day_ones = total_val % 10;
+
+	        Seven_Segment_Digit(4, day_tens, 0);
+	        Seven_Segment_Digit(3, day_ones, 0);
+	    }
+
+	    // --- YEARS (0 to 99) ---
+	    if (ADC3->SR & (1 << 1)) {
+	        analog_raw = ADC3->DR;
+
+	        // Map 0-4095 to 0-99
+	        total_val = (analog_raw * 100) / 4096;
+
+	        // Safety clamp (just in case)
+	        if (total_val > 99) total_val = 99;
+
+	        year_tens = total_val / 10;
+	        year_ones = total_val % 10;
+
+	        Seven_Segment_Digit(1, year_tens, 0);
+	        Seven_Segment_Digit(0, year_ones, 0);
+	    }
+
+	    // Return BCD Packed value
+	    return ((year_tens & 0xF) << 20) |
+	           ((year_ones & 0xF) << 16) |
+	           (0b010 << 13)             | // Weekday hardcoded to Tuesday (optional)
+	           ((month_tens & 0x1) << 12)|
+	           ((month_ones & 0xF) << 8) |
+	           ((day_tens & 0x3) << 4)   |
+	           ((day_ones & 0xF) << 0);
 	}
 
-	if (ADC1->SR & 1 << 1) {
-		analog_days = ADC2->DR;
-		day_tens = (3 * analog_days) / 4095;
-		Seven_Segment_Digit(4, day_tens, 0);
-		day_ones = (31 * analog_days / 4095) % 10;
-		Seven_Segment_Digit(3, day_ones, 0);
+	int setTime() {
+	    int analog_raw, total_val;
+	    int hour_ones, hour_tens, minute_ones, minute_tens;
+
+	    // Clear display momentarily (or handled by main loop)
+	    // Note: Doing this inside the function might cause flickering
+	    // for (int i = 0; i < 8; i++) { Seven_Segment_Digit(i, 45, 0); }
+
+	    // --- HOURS (0 to 23) ---
+	    if (ADC1->SR & (1 << 1)) {
+	        analog_raw = ADC1->DR;
+
+	        // Map 0-4095 to 0-23
+	        total_val = (analog_raw * 24) / 4096;
+	        if (total_val > 23) total_val = 23;
+
+	        hour_tens = total_val / 10;
+	        hour_ones = total_val % 10;
+
+	        Seven_Segment_Digit(7, hour_tens, 0);
+	        Seven_Segment_Digit(6, hour_ones, 0);
+	    }
+
+	    // --- MINUTES (0 to 59) ---
+	    if (ADC2->SR & (1 << 1)) {
+	        analog_raw = ADC2->DR;
+
+	        // Map 0-4095 to 0-59
+	        total_val = (analog_raw * 60) / 4096;
+	        if (total_val > 59) total_val = 59;
+
+	        minute_tens = total_val / 10;
+	        minute_ones = total_val % 10;
+
+	        Seven_Segment_Digit(4, minute_tens, 0);
+	        Seven_Segment_Digit(3, minute_ones, 0);
+	    }
+
+	    // Return BCD Packed Value for RTC_TR
+	    return ((hour_tens & 0x3) << 20)   |
+	           ((hour_ones & 0xF) << 16)   |
+	           ((minute_tens & 0x7) << 12) |
+	           ((minute_ones & 0xF) << 8)  |
+	           (0); // Seconds defaults to 0
 	}
-
-	if (ADC3->SR & 1 << 1) {
-		analog_years = ADC3->DR;
-		year_tens = (9 * analog_years) / 4095;
-		Seven_Segment_Digit(1, year_tens, 0);
-		year_ones = (99 * analog_years / 4095) % 10;
-		Seven_Segment_Digit(0, year_ones, 0);
-	}
-
-	return ((year_tens & 0xF) << 20) | ((year_ones & 0xF) << 16) | (0b010 << 13)
-			| ((month_tens & 0x1) << 12) | ((month_ones & 0xF) << 8)
-			| ((day_tens & 0x3) << 4) | ((day_ones & 0xF) << 0);
-}
-
-int setTime() {
-	int analog_value, hour_ones, hour_tens, minute_ones, minute_tens;
-
-	for (int i = 0; i < 8; i++) {
-		Seven_Segment_Digit(i, 45, 0);
-		HAL_Delay(1);
-	}
-
-	if (ADC1->SR & 1 << 1) {
-		analog_value = ADC1->DR;
-		hour_tens = (2 * analog_value / 4095);
-		Seven_Segment_Digit(7, hour_tens, 0);
-		hour_ones = (23 * analog_value / 4095) % 10;
-		Seven_Segment_Digit(6, hour_ones, 0);
-	}
-
-	if (ADC2->SR & 1 << 1) {
-		analog_value = ADC2->DR;
-		minute_tens = (5 * analog_value / 4095);
-		Seven_Segment_Digit(4, minute_tens, 0);
-
-		minute_ones = (59 * analog_value / 4095) % 10;
-		Seven_Segment_Digit(3, minute_ones, 0);
-
-	}
-
-	return ((hour_tens & 0x3) << 20) |  // HT[1:0]
-			((hour_ones & 0xF) << 16) |  // HU[3:0]
-			((minute_tens & 0x7) << 12) |  // MNT[2:0]
-			((minute_ones & 0xF) << 8) |  // MNU[3:0]
-			(0 << 4) |  // ST[2:0]
-			(0);    // SU[3:0]
-
-}
 
 void displayRTC() {
 	Seven_Segment(RTC->TR);
@@ -248,6 +284,9 @@ int main(void) {
 	TIM7->PSC = 199; //250Khz timer clock prescaler value, 250Khz = 50Mhz / 200
 	TIM7->ARR = 1; // Count to 1 then generate interrupt (divide by 2), 125Khz interrupt rate to increment byte counter for 78Hz PWM
 	TIM7->DIER |= 1; // Enable timer 7 interrupt
+	// Inside USER CODE BEGIN 2, around line 215
+	NVIC_EnableIRQ(TIM7_IRQn); // Enable Timer 7 Interrupt in the CPU
+	TIM7->CR1 |= 1;            // Start the timer
 	TIM7->CR1 |= 1; // Enable timer counting
 
 	/* Jeopardy Song */
@@ -786,7 +825,7 @@ int main(void) {
 				RTC->PRER |= 0x007F0000; //Set upper portion to 127
 				RTC->TR = new_TR_value;
 				RTC->DR = new_DR_value;
-				RTC->CR &= 0 << 6;
+				RTC->CR &= ~(1 << 6); // Only clears Bit 6 (Format bit)
 			}
 
 			RTC->ISR &= ~(1 << 7); // Clear INIT bit
@@ -795,22 +834,20 @@ int main(void) {
 			RTC->WPR = 0xFF;
 		}
 		while (GPIOC->IDR & 1 << 15) {
-			RTC->CR &= 0 << 8;
+			RTC->CR &= ~(1 << 8);
 			if (RTC->ISR & 1) {
-				alarm_value = setTime() | (1 << 31) | (0x3 << 28);
+				alarm_value = setTime() | (1 << 31);
 				RTC->ALRMAR = alarm_value;
 
 			}
 
-			if (RTC->ISR &= 1 << 8) {
-				Music_ON = 1;
-			RTC-> ISR &= (0 << 8);
-			}
-
 		}
-		if (GPIOC->IDR & 1 << 14) {
+	if (GPIOC->IDR & 1 << 14) {
 			RTC->CR |= 1 << 8;
-
+			if (RTC->ISR & 1 << 8) {
+				Music_ON = 1;
+				RTC->ISR &= ~(1 << 8);
+			}
 		}
 
 		for (int i = 0; i < 500000; i++) {
