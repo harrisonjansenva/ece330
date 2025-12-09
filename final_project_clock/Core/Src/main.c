@@ -131,7 +131,6 @@ int setDayMonthYear() {
 	if (ADC1->SR & (1 << 1)) {
 		analog_raw = ADC2->DR;
 
-		// Map 0-4095 to 0-30, then add 1 to get 1-31
 		total_val = (analog_raw * 31) / 4096 + 1;
 
 		day_tens = total_val / 10;
@@ -170,10 +169,6 @@ int setTime() {
 	int analog_raw, total_val;
 	int hour_ones, hour_tens, minute_ones, minute_tens;
 
-	// Clear display momentarily (or handled by main loop)
-	// Note: Doing this inside the function might cause flickering
-	// for (int i = 0; i < 8; i++) { Seven_Segment_Digit(i, 45, 0); }
-
 	// --- HOURS (0 to 23) ---
 	if (ADC1->SR & (1 << 1)) {
 		analog_raw = ADC1->DR;
@@ -211,9 +206,8 @@ int setTime() {
 			| ((minute_tens & 0x7) << 12) | ((minute_ones & 0xF) << 8) | (0); // Seconds defaults to 0
 }
 
-void displayRTC() {
-	Seven_Segment(RTC->TR);
-}
+
+//function to format day time to make it more readable
 
 void Display_Formatted_Date() {
 	uint32_t dr = RTC->DR;
@@ -839,13 +833,8 @@ int main(void) {
 	int new_DR_value, new_TR_value, alarm_value = 0;
 
 	while (1) {
-		//	  // --- Read switches and buttons ---
-		//	  uint32_t switches = GPIOC->IDR;          // get all input from switches
-		//	  uint8_t readIn  = (switches >> 12) & 0xF;   // read switches 12-15
-		//	  int write = !(switches & (1 << 11));  //since these are usually triggered by zero, we flip it
-		//	  int nextBtn  = !(inC & (1 << 10)); 	//same here
 
-		ADC1->SQR3 = 1; // select ADC channel 1 for potentiometer
+		ADC1->SQR3 = 1; // start ADC conversion for all potentiometers
 		ADC2->SQR3 = 2;
 		ADC3->SQR3 = 3;
 		HAL_Delay(1);
@@ -854,7 +843,7 @@ int main(void) {
 		ADC2->CR2 |= (1 << 30);
 		ADC3->CR2 |= (1 << 30);
 
-		RTC->CR |= 1 << 12;
+		RTC->CR |= 1 << 12;	//set to 24 hour time mode
 
 		HAL_Delay(1);
 
@@ -862,7 +851,6 @@ int main(void) {
 			clearDisplay();
 
 			// 1. Initialize temporary variables with CURRENT time/date
-			    // This prevents garbage data if you only edit one and not the other.
 			    new_DR_value = RTC->DR;
 			    new_TR_value = RTC->TR;
 
@@ -872,9 +860,7 @@ int main(void) {
 			    // Loop while Switch 0 is ON
 			    while (GPIOC->IDR & 1) {
 
-			        // --- BUTTON TOGGLE LOGIC (Button 10) ---
-			        // Detect if button is pressed (Rising Edge) to toggle mode
-			        if (GPIOC->IDR & (1 << 10)) {
+			        if (GPIOC->IDR & (1 << 10)) {	//check to see what to set and if button is pressed
 			            if (btn_pressed == 0) {
 			                edit_mode = !edit_mode; // Toggle: 0->1 or 1->0
 			                btn_pressed = 1;        // Lock until release
@@ -887,12 +873,10 @@ int main(void) {
 			        // --- EDIT MODES ---
 			        if (edit_mode == 0) {
 			            // MODE: SET DATE
-			            // Only update the Date variable. Time variable remains safe.
 			            new_DR_value = setDayMonthYear();
 			        }
 			        else {
 			            // MODE: SET TIME
-			            // Only update the Time variable. Date variable remains safe.
 			            new_TR_value = setTime();
 			        }
 
@@ -915,34 +899,35 @@ int main(void) {
 				RTC->WPR = 0xFF;
 			}
 		}
-		if (GPIOC->IDR & 1 << 15) {
+		if (GPIOC->IDR & 1 << 15) {	//check if we should set alarm
 			clearDisplay();
-			while (GPIOC->IDR & 1 << 15) {
+			while (GPIOC->IDR & 1 << 15) {		//unlock write protection and write to register
 				RTC->WPR = 0xCA;
 				RTC->WPR = 0x53;
-				RTC->CR &= ~(1 << 8);
+				RTC->CR &= ~(1 << 8);		//must disable alarm to write to it
 				if (RTC->ISR & 1) {
-					alarm_value = setTime() | (1 << 31);
-					RTC->ALRMAR = alarm_value;
+					alarm_value = setTime() | (1 << 31);	//don't care about day of week for out implementation
+					RTC->ALRMAR = alarm_value;		// write alarm value to AlARMAR register
 
 				}
 
 			}
 		}
 
-		if (GPIOC->IDR & 1 << 14) {
-			RTC->CR |= 1 << 8;
-			if (RTC->ISR & 1 << 8) {
+		if (GPIOC->IDR & 1 << 14) {	//check to see if alarm is enabled
+			RTC->CR |= 1 << 8;	//enable alarm in control register
+			GPIOD->ODR |= 1 << 15;
+			if (RTC->ISR & 1 << 8) {	//check for alarm interrupt on and play music
 				Music_ON = 1;
-				RTC->ISR &= ~(1 << 8);
+				RTC->ISR &= ~(1 << 8);	//reset alarm interrupt
 			}
-		}
+		} else GPIOD->ODR &= ~(1 << 15);
 
 		// Static variables keep their value between loop iterations
 		static uint32_t last_toggle_time = 0;
 		static int show_date_mode = 0;
 
-		// Check if 2000ms (2 seconds) have passed
+		// 4 Second delay to switch between date and time
 		if (HAL_GetTick() - last_toggle_time > 4000) {
 			show_date_mode = !show_date_mode; // Toggle mode
 			last_toggle_time = HAL_GetTick(); // Reset timer
